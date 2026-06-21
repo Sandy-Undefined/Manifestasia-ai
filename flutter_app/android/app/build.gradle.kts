@@ -14,6 +14,11 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+val hasReleaseSigningConfig =
+    listOf("keyAlias", "keyPassword", "storeFile", "storePassword").all {
+        keystoreProperties[it] is String
+    }
+
 android {
     namespace = "ai.manifestasia.app"
     compileSdk = flutter.compileSdkVersion
@@ -40,17 +45,21 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
+        if (hasReleaseSigningConfig) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            if (hasReleaseSigningConfig) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 }

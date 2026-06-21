@@ -15,6 +15,7 @@ enum AppScreen {
   visualization,
   journal,
   progress,
+  weeklySummary,
   visionGenerator,
   scripting,
   evidence,

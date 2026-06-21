@@ -5,15 +5,17 @@ import '../models/app_screen.dart';
 import '../screens/auth_screen.dart';
 import '../screens/capture_screens.dart';
 import '../screens/email_otp_screen.dart';
+import '../screens/evidence_tracker_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/learning_modules_screen.dart';
 import '../screens/onboarding_screens.dart';
 import '../screens/practice_screens.dart';
-import '../screens/progress_screen.dart';
+import '../screens/progress_v2_screen.dart';
 import '../screens/setup_screen.dart';
 import '../screens/settings_screen.dart';
-import '../screens/vision_generator_screen.dart';
+import '../screens/vision_generator_v2_screen.dart';
 import '../screens/welcome_screen.dart';
+import '../screens/weekly_summary_screen.dart';
 import '../state/app_state.dart';
 import '../widgets/app_shell.dart';
 
@@ -123,17 +125,13 @@ class _ManifestasiaAppState extends State<ManifestasiaApp> {
       case AppScreen.visualization:
         return GuidedTextScreen.visualization(state: state);
       case AppScreen.journal:
-        return TextCaptureScreen(
-          title: 'Voice Journal',
-          hint: 'Write what you noticed, felt, or assumed today.',
-          items: state.journalNotes,
-          onAdd: state.addJournalNote,
-          onBack: () => state.go(AppScreen.home),
-        );
+        return JournalScreen(state: state);
       case AppScreen.progress:
-        return ProgressScreen(state: state);
+        return ProgressV2Screen(state: state);
+      case AppScreen.weeklySummary:
+        return WeeklySummaryScreen(state: state);
       case AppScreen.visionGenerator:
-        return VisionGeneratorScreen(state: state);
+        return VisionGeneratorV2Screen(state: state);
       case AppScreen.scripting:
         return TextCaptureScreen(
           title: 'Scripting Studio',
@@ -144,14 +142,7 @@ class _ManifestasiaAppState extends State<ManifestasiaApp> {
           onBack: () => state.go(AppScreen.home),
         );
       case AppScreen.evidence:
-        return TextCaptureScreen(
-          title: 'Evidence Tracker',
-          hint:
-              'Log any sign, movement, synchronicity, or shift that feels like confirmation your desire is already on its way to you.',
-          items: state.evidenceItems,
-          onAdd: state.addEvidence,
-          onBack: () => state.go(AppScreen.home),
-        );
+        return EvidenceTrackerScreen(state: state);
       case AppScreen.sats:
         return GuidedTextScreen.sats(state: state);
       case AppScreen.visionBoard:
@@ -162,7 +153,7 @@ class _ManifestasiaAppState extends State<ManifestasiaApp> {
           onBack: () => state.go(AppScreen.home),
         );
       case AppScreen.eveningRitual:
-        return GuidedTextScreen.eveningRitual(state: state);
+        return EveningRitualScreen(state: state);
       case AppScreen.conversations:
         return GuidedTextScreen.conversations(state: state);
       case AppScreen.learning:

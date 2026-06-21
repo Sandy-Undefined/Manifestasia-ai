@@ -35,7 +35,9 @@ class AppShell extends StatelessWidget {
                 AppScreen.home => 0,
                 AppScreen.visionGenerator => 1,
                 AppScreen.journal => 2,
-                AppScreen.progress => 3,
+                AppScreen.evidence => 3,
+                AppScreen.progress => 4,
+                AppScreen.weeklySummary => 4,
                 _ => 0,
               },
               onDestinationSelected: (index) {
@@ -44,6 +46,7 @@ class AppShell extends StatelessWidget {
                     AppScreen.home,
                     AppScreen.visionGenerator,
                     AppScreen.journal,
+                    AppScreen.evidence,
                     AppScreen.progress,
                   ][index],
                 );
@@ -60,6 +63,10 @@ class AppShell extends StatelessWidget {
                 NavigationDestination(
                   icon: Icon(Icons.mic_none),
                   label: 'Journal',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.trending_up),
+                  label: 'Evidence',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.bar_chart),

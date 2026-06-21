@@ -132,9 +132,7 @@ class AppState extends ChangeNotifier {
     try {
       profile = await _client
           .from('profiles')
-          .select(
-            'full_name,onboarding_completed,total_sessions,journal_entries,ai_visions_generated,weekly_generations_used,weekly_generation_limit,premium_tier',
-          )
+          .select()
           .eq('id', authUser.id)
           .maybeSingle();
     } catch (_) {
@@ -165,22 +163,73 @@ class AppState extends ChangeNotifier {
       id: authUser.id,
       name:
           (profile?['full_name'] as String?) ??
+          (profile?['name'] as String?) ??
           metadataName ??
           (derivedName.isEmpty ? 'Friend' : derivedName),
       email: authUser.email ?? '',
-      onboardingCompleted: profile?['onboarding_completed'] == true,
-      totalSessions: (profile?['total_sessions'] as num?)?.toInt() ?? 0,
+      onboardingCompleted: _readBool(
+        profile,
+        authUser.userMetadata,
+        const [
+          'onboarding_completed',
+          'onboardingCompleted',
+          'completed_onboarding',
+        ],
+      ),
+      totalSessions:
+          _readInt(profile, const ['total_sessions', 'totalSessions']) ?? 0,
       currentStreak: (streak?['current_streak'] as num?)?.toInt() ?? 0,
       longestStreak: (streak?['longest_streak'] as num?)?.toInt() ?? 0,
-      journalEntries: (profile?['journal_entries'] as num?)?.toInt() ?? 0,
+      journalEntries:
+          _readInt(profile, const ['journal_entries', 'journalEntries']) ?? 0,
       aiVisionsGenerated:
-          (profile?['ai_visions_generated'] as num?)?.toInt() ?? 0,
+          _readInt(profile, const ['ai_visions_generated', 'aiVisionsGenerated']) ??
+          0,
       weeklyGenerationsUsed:
-          (profile?['weekly_generations_used'] as num?)?.toInt() ?? 0,
+          _readInt(
+            profile,
+            const ['weekly_generations_used', 'weeklyGenerationsUsed'],
+          ) ??
+          0,
       weeklyGenerationLimit:
-          (profile?['weekly_generation_limit'] as num?)?.toInt() ?? 5,
-      premiumTier: (profile?['premium_tier'] as String?) ?? 'free',
+          _readInt(
+            profile,
+            const ['weekly_generation_limit', 'weeklyGenerationLimit'],
+          ) ??
+          5,
+      premiumTier:
+          (profile?['premium_tier'] as String?) ??
+          (profile?['premiumTier'] as String?) ??
+          'free',
     );
+  }
+
+  bool _readBool(
+    Map<String, dynamic>? profile,
+    Map<String, dynamic>? metadata,
+    List<String> keys,
+  ) {
+    for (final source in [profile, metadata]) {
+      if (source == null) continue;
+      for (final key in keys) {
+        final value = source[key];
+        if (value is bool) return value;
+        if (value is String) return value.toLowerCase() == 'true';
+        if (value is num) return value != 0;
+      }
+    }
+    return false;
+  }
+
+  int? _readInt(Map<String, dynamic>? source, List<String> keys) {
+    if (source == null) return null;
+    for (final key in keys) {
+      final value = source[key];
+      if (value is num) return value.toInt();
+      if (value is String) return int.tryParse(value);
+      if (value is List) return value.length;
+    }
+    return null;
   }
 
   Future<void> signIn(String email, String password) async {
@@ -336,6 +385,14 @@ class AppState extends ChangeNotifier {
       // Optional profile persistence should not block the native flow.
     }
 
+    try {
+      await _client.auth.updateUser(
+        UserAttributes(data: {'onboarding_completed': true}),
+      );
+    } catch (_) {
+      // Auth metadata persistence is a fallback and should not block entry.
+    }
+
     user = current.copyWith(onboardingCompleted: true);
     screen = AppScreen.home;
     notifyListeners();
@@ -376,6 +433,16 @@ class AppState extends ChangeNotifier {
         aiVisionsGenerated: current.aiVisionsGenerated + 1,
       );
     }
+    notifyListeners();
+  }
+
+  void upgradeTier(String tier) {
+    final current = user;
+    if (current == null) return;
+    user = current.copyWith(
+      premiumTier: tier,
+      weeklyGenerationLimit: tier == 'unlimited' ? 999 : 25,
+    );
     notifyListeners();
   }
 

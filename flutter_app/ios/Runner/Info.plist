@@ -30,6 +30,8 @@
 	<string>Manifestasia may use the camera when you choose to add photos to your vision work.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Manifestasia may use the microphone when you choose to record voice journal entries.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Manifestasia uses speech recognition to transcribe voice journal entries you choose to record.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Manifestasia may access selected photos when you choose images for your vision work.</string>
 	<key>UIApplicationSceneManifest</key>
